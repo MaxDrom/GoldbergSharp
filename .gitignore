@@ -1,0 +1,6 @@
+builds/**
+obj/**
+bin/**
+imgui.ini
+gltf/
+shader_objects/**

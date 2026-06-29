@@ -1,0 +1,124 @@
+{
+  "pipelines": {
+    "Deferred": {
+      "Target": "o_ColorAttachment_0",
+      "Resources": {
+        "g_AlbedoAttachment_0": {
+          "type": "Texture2D",
+          "format": "R32G32B32A32Sfloat",
+          "Size": [
+            1920,
+            1080
+          ]
+        },
+        "g_MetallicRoughness_0": {
+          "type": "Texture2D",
+          "format": "R32G32B32A32Sfloat",
+          "Size": [
+            1920,
+            1080
+          ]
+        },
+        "g_NormalAttachment_0": {
+          "type": "Texture2D",
+          "format": "R32G32B32A32Sfloat",
+          "Size": [
+            1920,
+            1080
+          ]
+        },
+        "g_DepthAttachment_0": {
+          "type": "Texture2D",
+          "format": "D32Sfloat",
+          "Size": [
+            1920,
+            1080
+          ]
+        }
+      },
+      "Passes:": {
+        "DepthOnly": {
+          "Type": "Scene",
+          "Outputs": {
+            "ColorAttachments": [],
+            "DepthAttachment": "g_DepthAttachment_0"
+          },
+          "Inputs": {}
+        },
+        "GBufferPass": {
+          "Type": "Scene",
+          "Outputs": {
+            "ColorAttachments": [
+              "g_AlbedoAttachment_0",
+              "g_MetallicRoughness_0",
+              "g_NormalAttachment_0"
+            ],
+            "DepthAttachment": "g_DepthAttachment_0"
+          },
+          "Inputs": {}
+        },
+        "Lighting": {
+          "Type": "Screen",
+          "Outputs": {
+            "ColorAttachments": [
+              "o_ColorAttachment_0"
+            ]
+          },
+          "Inputs": {},
+          "Material": "PBRLighting"
+        }
+      }
+    }
+  },
+  
+  "materials":
+  {
+    "BasicPBR":
+    {
+      "Type": "Scene",
+      "Pipeline": "Deferred",
+      "Passes":{
+        "DepthOnly":
+        {
+          "CullMode": "BACK",
+          "DepthTest": true,
+          "BlendMode": "OPAQUE",
+          "Effect": "Base"
+        },
+        "GBufferPass": {
+          "CullMode": "BACK",
+          "DepthTest": true,
+          "BlendMode": "OPAQUE",
+          "Effect": "GBufferBase"
+        }
+      }
+    },
+
+    "PBRLighting":
+    {
+      "Type": "Screen",
+      "Pipeline": "Deferred",
+      "Passes":{
+        "Lighting":
+        {
+          "CullMode": "BACK",
+          "DepthTest": false,
+          "BlendMode": "OPAQUE",
+          "Effect": "Debug"
+        }
+      }
+    }
+    
+  },
+  
+  "effects":
+  {
+    "Base":
+    {
+      "Shaders": {
+        "vert": "base.vert.spv",
+        "frag": "base.frag.spv"
+      }
+    }
+  }
+}

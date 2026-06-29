@@ -1,0 +1,40 @@
+#version 450
+layout(local_size_x = 1024) in;
+
+layout(push_constant) uniform PushConstants {
+    int bufferLength;
+}push;
+
+layout(std430, binding = 0) buffer InputBuffer {
+    float data[];
+}
+inputBuffer;
+
+layout(std430, binding = 1) buffer OutputBuffer {
+    float data[];
+}outputBuffer;
+
+
+#define OP(x, y) (min((x), (y)))
+#define ID 3.4028235e38
+
+shared float localData[1024];
+
+void main() {
+    uint idx = gl_GlobalInvocationID.x;
+    uint local_idx = gl_LocalInvocationID.x; 
+    localData[local_idx] = idx < push.bufferLength ? inputBuffer.data[idx] : ID;
+    barrier();
+    
+    for (uint stride = 2; stride < gl_WorkGroupSize.x; stride *= 2) {
+        if (local_idx % (2*stride) == 0) {
+            localData[local_idx] = OP(localData[local_idx], localData[local_idx + stride]);
+        }
+        barrier();
+    }
+    
+    memoryBarrierShared();
+    if (local_idx == 0) {
+        outputBuffer.data[gl_WorkGroupID.x] = localData[0];
+    }
+}
